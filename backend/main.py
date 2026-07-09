@@ -17,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class ChatRequest(BaseModel):
     message: str
     chat_id: str | None = None
@@ -25,6 +26,7 @@ class ChatRequest(BaseModel):
 @app.get("/")
 def home():
     return {"message": "Backend Running 🚀"}
+
 
 @app.post("/chat")
 def chat(data: ChatRequest):
@@ -61,3 +63,36 @@ def chat(data: ChatRequest):
         return {
             "error": str(e)
         }
+
+
+@app.get("/history")
+def get_history():
+
+    chats = list(
+        chat_collection.find(
+            {},
+            {"_id": 0}
+        ).sort("created_at", -1)
+    )
+
+    return chats
+
+
+@app.get("/new-chat")
+def new_chat():
+
+    return {
+        "chat_id": str(uuid.uuid4())
+    }
+
+@app.get("/history/{chat_id}")
+def get_chat(chat_id: str):
+
+    chats = list(
+        chat_collection.find(
+            {"chat_id": chat_id},
+            {"_id": 0}
+        ).sort("created_at", 1)
+    )
+
+    return chats
