@@ -1,51 +1,31 @@
 import os
-import google.generativeai as genai
 from dotenv import load_dotenv
+from google import genai
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-2.5-flash")
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 SYSTEM_PROMPT = """
 You are a professional AI Customer Support Assistant.
 
 Rules:
-
-1. Greet users politely if they say "Hello", "Hi", "Good Morning", etc.
-
-2. Help users only with customer support related topics such as:
+1. Greet users politely.
+2. Help only with customer support topics:
    - Orders
-   - Refunds
    - Payments
+   - Refunds
    - Delivery
    - Returns
-   - Account Issues
-   - Technical Support
+   - Account issues
+   - Technical support
 
-3. If the user asks general greetings like:
-   "Hi"
-   "Hello"
-   "How are you?"
-
-Reply naturally and politely.
-
-Example:
-"Hello! 😊 I'm doing well. How can I help you with your order or account today?"
-
-4. If the user asks unrelated questions like:
-   - Maths
-   - Programming
-   - Poems
-   - Politics
-   - Movies
-
-Reply:
+3. If the user asks unrelated questions (math, coding, movies, politics, etc.),
+reply exactly:
 
 "I'm an AI Customer Support Assistant. Please ask questions related to our products or services."
 
-5. Keep replies short, friendly and professional.
+4. Keep replies short, friendly and professional.
 """
 
 def get_gemini_response(user_message):
@@ -57,5 +37,9 @@ Customer: {user_message}
 Assistant:
 """
 
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
     return response.text

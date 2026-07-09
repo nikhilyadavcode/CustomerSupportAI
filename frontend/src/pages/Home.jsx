@@ -18,38 +18,65 @@ function Home() {
     },
   ]);
 
+  const [loading, setLoading] = useState(false);
+
   async function sendMessage(text) {
-    if (text.trim() === "") return;
+    if (text.trim() === "" || loading) return;
 
-    // User Message
-    const userMessage = {
-      text,
-      sender: "user",
-    };
+    setLoading(true);
 
-    setMessages((prev) => [...prev, userMessage]);
+    // User Message + Typing
+    setMessages((prev) => [
+      ...prev,
+      {
+        text,
+        sender: "user",
+      },
+      {
+        text: "🤖 Typing...",
+        sender: "bot",
+      },
+    ]);
 
     try {
       const response = await API.post("/chat", {
         message: text,
       });
 
-      const botMessage = {
-        text: response.data.reply,
-        sender: "bot",
-      };
+      setMessages((prev) => {
+        const updated = [...prev];
 
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
-      console.error("API Error:", error);
+        // Remove Typing...
+        updated.pop();
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: "❌ Backend connection failed.",
+        // Add Bot Reply
+        updated.push({
+          text: response.data.reply,
           sender: "bot",
-        },
-      ]);
+        });
+
+        return updated;
+      });
+
+    } catch (error) {
+  console.log("Full Error:", error);
+
+  if (error.response) {
+    console.log("Status:", error.response.status);
+    console.log("Data:", error.response.data);
+  } else {
+    console.log("Message:", error.message);
+  }
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      text: "❌ " + (error.response?.data?.detail || error.message),
+      sender: "bot",
+    },
+  ]);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -62,7 +89,11 @@ function Home() {
 
         <div className="chat-section">
           <ChatBox messages={messages} />
-          <InputBox sendMessage={sendMessage} />
+
+          <InputBox
+            sendMessage={sendMessage}
+            loading={loading}
+          />
         </div>
       </div>
     </div>
