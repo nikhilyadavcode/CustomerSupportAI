@@ -9,10 +9,15 @@ from routes.orders import router as order_router
 from database.connection import chat_collection
 from services.gemini_service import get_gemini_response
 from services.order_service import find_order
+from routes.products import router as product_router
+from services.product_service import find_product
+from routes.tickets import router as ticket_router
 
 app = FastAPI()
 
 app.include_router(order_router)
+app.include_router(product_router)
+app.include_router(ticket_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,7 +37,6 @@ class ChatRequest(BaseModel):
 def home():
     return {"message": "Backend Running 🚀"}
 
-
 @app.post("/chat")
 def chat(data: ChatRequest):
     try:
@@ -49,7 +53,7 @@ def chat(data: ChatRequest):
         })
 
         # -------------------------
-        # Find Order Number
+        # Find Order
         # -------------------------
         order = None
 
@@ -59,11 +63,38 @@ def chat(data: ChatRequest):
             order = find_order(match.group())
 
         # -------------------------
+        # Find Product
+        # -------------------------
+        product = None
+
+        product_names = [
+            "Realme P4x",
+            "Samsung Galaxy S24",
+            "iPhone 16"
+        ]
+
+        for name in product_names:
+            if name.lower() in data.message.lower():
+                product = find_product(name)
+                break
+
+        # -------------------------
+        # Create Context
+        # -------------------------
+        context = {}
+
+        if order:
+            context["order"] = order
+
+        if product:
+            context["product"] = product
+
+        # -------------------------
         # Gemini Reply
         # -------------------------
         reply = get_gemini_response(
             data.message,
-            order
+            context if context else None
         )
 
         # -------------------------
@@ -87,60 +118,3 @@ def chat(data: ChatRequest):
         return {
             "error": str(e)
         }
-
-
-# ===========================
-# Get Unique Chat History
-# ===========================
-@app.get("/history")
-def get_history():
-
-    chats = list(
-        chat_collection.find(
-            {"sender": "user"},
-            {"_id": 0}
-        ).sort("created_at", -1)
-    )
-
-    unique_chats = []
-    seen = set()
-
-    for chat in chats:
-
-        if chat["chat_id"] not in seen:
-
-            seen.add(chat["chat_id"])
-
-            unique_chats.append({
-                "chat_id": chat["chat_id"],
-                "title": chat["message"]
-            })
-
-    return unique_chats
-
-
-# ===========================
-# Start New Chat
-# ===========================
-@app.get("/new-chat")
-def new_chat():
-
-    return {
-        "chat_id": str(uuid.uuid4())
-    }
-
-
-# ===========================
-# Load Complete Conversation
-# ===========================
-@app.get("/history/{chat_id}")
-def get_chat(chat_id: str):
-
-    chats = list(
-        chat_collection.find(
-            {"chat_id": chat_id},
-            {"_id": 0}
-        ).sort("created_at", 1)
-    )
-
-    return chats

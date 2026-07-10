@@ -27,40 +27,57 @@ reply exactly:
 
 4. Keep replies short, friendly and professional.
 
-5. If order information is available, ALWAYS use it while answering.
+5. If order information or product information is available, ALWAYS use it.
 
-6. Mention Product Name, Payment Status, Delivery Status and Refund Status whenever relevant.
+6. Do not ask for the order number again if it is already available.
 
-7. Do not ask for the order number again if it is already available.
+7. When product information is available, mention:
+   - Product Name
+   - Brand
+   - Price
+   - Stock
+   - Warranty
+   - Category
 """
 
+def get_gemini_response(user_message, context=None):
 
-def get_gemini_response(user_message, order_details=None):
+    prompt = SYSTEM_PROMPT + "\n\n"
 
-    if order_details:
-        order_context = f"""
+    if context:
+
+        if "order" in context:
+            order = context["order"]
+
+            prompt += f"""
 Order Information:
+Order ID: {order.get("order_id")}
+Customer: {order.get("customer")}
+Product: {order.get("product")}
+Price: ₹{order.get("price")}
+Payment Status: {order.get("payment_status")}
+Delivery Status: {order.get("delivery_status")}
+Refund Status: {order.get("refund_status")}
 
-Order ID: {order_details.get("order_id")}
-Customer: {order_details.get("customer")}
-Product: {order_details.get("product")}
-Price: ₹{order_details.get("price")}
-Payment Status: {order_details.get("payment_status")}
-Delivery Status: {order_details.get("delivery_status")}
-Refund Status: {order_details.get("refund_status")}
 """
-    else:
-        order_context = "No order information found."
 
-    prompt = f"""
-{SYSTEM_PROMPT}
+        if "product" in context:
+            product = context["product"]
 
-{order_context}
+            prompt += f"""
+Product Information:
+Product ID: {product.get("product_id")}
+Name: {product.get("name")}
+Brand: {product.get("brand")}
+Price: ₹{product.get("price")}
+Stock: {product.get("stock")}
+Warranty: {product.get("warranty")}
+Category: {product.get("category")}
+Description: {product.get("description")}
 
-Answer using the order information whenever it is available.
-If the customer asks about payment, refund, delivery or product,
-refer to the order details in your answer.
+"""
 
+    prompt += f"""
 Customer:
 {user_message}
 
