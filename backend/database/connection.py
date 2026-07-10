@@ -14,5 +14,12 @@ try:
 except Exception as e:
     print("❌ MongoDB Error:", e)
 
+# Database
 db = client["customer_support_ai"]
+
+# Collections
 chat_collection = db["chat_history"]
+users_collection = db["users"]
+products_collection = db["products"]
+orders_collection = db["orders"]
+tickets_collection = db["tickets"]

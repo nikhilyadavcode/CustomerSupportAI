@@ -26,13 +26,43 @@ reply exactly:
 "I'm an AI Customer Support Assistant. Please ask questions related to our products or services."
 
 4. Keep replies short, friendly and professional.
+
+5. If order information is available, ALWAYS use it while answering.
+
+6. Mention Product Name, Payment Status, Delivery Status and Refund Status whenever relevant.
+
+7. Do not ask for the order number again if it is already available.
 """
 
-def get_gemini_response(user_message):
+
+def get_gemini_response(user_message, order_details=None):
+
+    if order_details:
+        order_context = f"""
+Order Information:
+
+Order ID: {order_details.get("order_id")}
+Customer: {order_details.get("customer")}
+Product: {order_details.get("product")}
+Price: ₹{order_details.get("price")}
+Payment Status: {order_details.get("payment_status")}
+Delivery Status: {order_details.get("delivery_status")}
+Refund Status: {order_details.get("refund_status")}
+"""
+    else:
+        order_context = "No order information found."
+
     prompt = f"""
 {SYSTEM_PROMPT}
 
-Customer: {user_message}
+{order_context}
+
+Answer using the order information whenever it is available.
+If the customer asks about payment, refund, delivery or product,
+refer to the order details in your answer.
+
+Customer:
+{user_message}
 
 Assistant:
 """

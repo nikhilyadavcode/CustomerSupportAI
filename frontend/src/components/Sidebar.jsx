@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 
-function Sidebar({ newChat }) {
+function Sidebar({ newChat, loadConversation }) {
 
   const [history, setHistory] = useState([]);
 
@@ -12,9 +12,7 @@ function Sidebar({ newChat }) {
   async function loadHistory() {
     try {
       const response = await API.get("/history");
-
       setHistory(response.data);
-
     } catch (err) {
       console.log(err);
     }
@@ -33,19 +31,21 @@ function Sidebar({ newChat }) {
       <h3>Chat History</h3>
 
       <ul>
-
-        {history
-          .filter((chat) => chat.sender === "user")
-          .map((chat, index) => (
-
-            <li key={index}>
-              {chat.message.length > 30
-                ? chat.message.substring(0, 30) + "..."
-                : chat.message}
-            </li>
-
-          ))}
-
+        {history.map((chat) => (
+          <li
+            key={chat.chat_id}
+            onClick={() => loadConversation(chat.chat_id)}
+            style={{
+              cursor: "pointer",
+              padding: "8px",
+              borderBottom: "1px solid #ddd",
+            }}
+          >
+            {chat.title.length > 30
+              ? chat.title.substring(0, 30) + "..."
+              : chat.title}
+          </li>
+        ))}
       </ul>
 
     </aside>

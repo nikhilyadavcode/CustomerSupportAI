@@ -35,6 +35,22 @@ function Home() {
       console.log(err);
     }
   }
+  async function loadConversation(id) {
+  try {
+    const response = await API.get(`/history/${id}`);
+
+    const chats = response.data.map((chat) => ({
+      text: chat.message,
+      sender: chat.sender,
+    }));
+
+    setMessages(chats);
+    setChatId(id);
+
+  } catch (err) {
+    console.log(err);
+  }
+}
 
   async function sendMessage(text) {
     if (text.trim() === "" || loading) return;
