@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from google import genai
+from services.knowledge_service import get_knowledge
 
 load_dotenv()
 
@@ -38,12 +39,29 @@ reply exactly:
    - Stock
    - Warranty
    - Category
+
+8. If company policy information is available, answer using that information first.
+
+9. If Company Knowledge Base information is available, DO NOT change, guess or add extra information. Follow the Company Knowledge Base exactly.
 """
+
 
 def get_gemini_response(user_message, context=None):
 
+    # -------------------------
+    # Knowledge Base
+    # -------------------------
+    knowledge = get_knowledge(user_message)
+
+    # If policy exists, return it directly
+    if knowledge:
+        return knowledge
+
     prompt = SYSTEM_PROMPT + "\n\n"
 
+    # -------------------------
+    # Order Context
+    # -------------------------
     if context:
 
         if "order" in context:
@@ -51,6 +69,7 @@ def get_gemini_response(user_message, context=None):
 
             prompt += f"""
 Order Information:
+
 Order ID: {order.get("order_id")}
 Customer: {order.get("customer")}
 Product: {order.get("product")}
@@ -61,11 +80,15 @@ Refund Status: {order.get("refund_status")}
 
 """
 
+        # -------------------------
+        # Product Context
+        # -------------------------
         if "product" in context:
             product = context["product"]
 
             prompt += f"""
 Product Information:
+
 Product ID: {product.get("product_id")}
 Name: {product.get("name")}
 Brand: {product.get("brand")}

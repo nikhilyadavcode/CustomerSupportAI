@@ -1,4 +1,5 @@
 from database.connection import tickets_collection
+from datetime import datetime
 import uuid
 
 
@@ -33,7 +34,26 @@ def create_ticket(customer, email, issue, description):
         "issue": issue,
         "description": description,
         "status": "Open",
-        "priority": "High"
+        "priority": "High",
+        "created_at": datetime.utcnow()
+    }
+
+    tickets_collection.insert_one(ticket)
+
+    return ticket
+
+
+def create_ai_ticket(issue: str, description: str):
+
+    ticket = {
+        "ticket_id": "T" + str(uuid.uuid4())[:8].upper(),
+        "customer": "Unknown",
+        "email": "",
+        "issue": issue,
+        "description": description,
+        "status": "Open",
+        "priority": "High",
+        "created_at": datetime.utcnow()
     }
 
     tickets_collection.insert_one(ticket)
