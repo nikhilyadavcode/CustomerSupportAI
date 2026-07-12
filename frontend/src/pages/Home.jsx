@@ -12,7 +12,7 @@ function Home() {
 
   const navigate = useNavigate();
 
-  const username = localStorage.getItem("name");
+
 
   const welcomeMessages = [
     {
@@ -102,7 +102,7 @@ function Home() {
       },
 
       {
-        text: "🤖 Typing...",
+        text: "🤖AI is Typing...",
         sender: "bot",
       },
 
@@ -180,37 +180,27 @@ function Home() {
 
       {/* Top Bar */}
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px 20px",
-          background: "#f5f5f5",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
+      
+    <div className="welcome-card">
 
-        <h3>
-          👋 Welcome, {username}
-        </h3>
+  <div>
 
-        <button
-          onClick={logout}
-          style={{
-            padding: "8px 15px",
-            background: "#ff4d4f",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
+    <h2>👋 Welcome, {localStorage.getItem("name")}</h2>
 
-      </div>
+    <p>
+      Ask anything about your orders, products, refunds,
+      delivery or support tickets.
+    </p>
 
+  </div>
+
+  <div className="robot-icon">
+
+    🤖
+
+  </div>
+
+</div>
       <div className="main-content">
 
         <Sidebar

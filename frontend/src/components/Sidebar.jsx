@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
+import { FaPlus, FaHistory, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 
 function Sidebar({ newChat, loadConversation }) {
 
   const [history, setHistory] = useState([]);
+
+  const navigate = useNavigate();
+
+  const username = localStorage.getItem("name") || "User";
 
   useEffect(() => {
     loadHistory();
@@ -18,35 +24,71 @@ function Sidebar({ newChat, loadConversation }) {
     }
   }
 
+  function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("name");
+    navigate("/");
+  }
+
   return (
     <aside className="sidebar">
+
+      <div className="profile">
+
+  <FaUserCircle className="profile-icon" />
+
+  <h2>{username}</h2>
+
+  <p>AI Assistant User</p>
+
+  <span className="online-status">
+    🟢 Online
+  </span>
+
+</div>
 
       <button
         className="new-chat-btn"
         onClick={newChat}
       >
-        + New Chat
+        <FaPlus /> New Chat
       </button>
 
-      <h3>Chat History</h3>
+      <div className="history-title">
 
-      <ul>
+        <FaHistory />
+
+        <span>Chat History</span>
+
+      </div>
+
+      <ul className="history-list">
+
         {history.map((chat) => (
+
           <li
             key={chat.chat_id}
             onClick={() => loadConversation(chat.chat_id)}
-            style={{
-              cursor: "pointer",
-              padding: "8px",
-              borderBottom: "1px solid #ddd",
-            }}
           >
-            {chat.title.length > 30
-              ? chat.title.substring(0, 30) + "..."
+
+            {chat.title.length > 28
+              ? chat.title.substring(0, 28) + "..."
               : chat.title}
+
           </li>
+
         ))}
+
       </ul>
+
+      <button
+        className="logout-btn"
+        onClick={logout}
+      >
+        <FaSignOutAlt />
+
+        Logout
+      </button>
 
     </aside>
   );

@@ -1,6 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* @import "tailwindcss"; */
-body{
+*{
     margin:0;
     padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+body{
+
+background-image:
+linear-gradient(
+rgba(20,20,50,.72),
+rgba(20,20,60,.72)
+),
+url("./assets/background.jpg");
+
+background-size:cover;
+
+background-position:center;
+
+background-repeat:no-repeat;
+
+background-attachment:fixed;
+
+min-height:100vh;
+
+overflow:hidden;
+
+}
+
+#root{
+
+    min-height:100vh;
+
+}
+
+button{
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+button:hover{
+
+    transform:scale(1.05);
+
+}
+
+input{
+
+    outline:none;
+
 }
